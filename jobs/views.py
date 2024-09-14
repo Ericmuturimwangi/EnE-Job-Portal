@@ -2,6 +2,26 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .models import Job, Application
 from .forms import JobForm, ApplicationForm
+from .models import Category, Industry
+def job_categories_list(request):
+    categories = Category.objects.all()
+    return render(request, 'jobs/categories_list.html', {'categories': categories})
+
+def job_industries_list(request):
+    industries = Industry.objects.all()
+    return render(request, 'jobs/industries_list.html', {'industries': industries})
+
+def jobs_by_category(request, category_id):
+    category = get_object_or_404(Category, id=category_id)
+    jobs = Job.objects.filter(category=category)
+    return render (request, 'jobs/category.html', {'category':category, 'jobs':jobs})
+
+def jobs_by_industry(request, industry_id):
+    industry = get_object_or_404(Industry, id=industry_id)
+    jobs = Job.objects.filter(industry=industry)
+    return render (request, 'jobs/industry.html', {'industry': industry, 'jobs':jobs})
+
+
 
 def index(request):
     return render(request, 'jobs/index.html')
@@ -11,8 +31,6 @@ def job_list(request):
     return render (request, 'jobs/job_list.html', {'jobs':jobs})
 
 @login_required
-
-
 def job_detail(request, pk):
     job = get_object_or_404(Job, pk=pk)
     if request.method == 'POST':

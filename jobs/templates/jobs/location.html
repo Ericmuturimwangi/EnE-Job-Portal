@@ -1,0 +1,10 @@
+<h2>Jobs in {{ location.name }}</h2>
+{% for job in jobs %}
+    <div class="job">
+        <h3>{{ job.title }}</h3>
+        <p>{{ job.company.company_name }} - {{ job.location }}</p>
+        <a href="{% url 'job_detail' job.pk %}">View Job</a>
+    </div>
+{% empty %}
+    <p>No jobs available in this location.</p>
+{% endfor %}

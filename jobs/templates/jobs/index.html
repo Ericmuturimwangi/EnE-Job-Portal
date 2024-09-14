@@ -26,9 +26,9 @@
                     <div class="col-lg-4 mb-5 mb-lg-0">
                         <div class="feature bg-primary bg-gradient text-white rounded-3 mb-3"><i class="bi bi-collection"></i></div>
                         <h2 class="h4 fw-bolder">Job By Category</h2>
-                        <p>Find job opportunities sorted by category to match your interests and skills. Browse through different categories to find the perfect job for you.</p>
-                        <a class="text-decoration-none" href="#!">
-                            All Job Categories
+                        <p>Find job opportunities sorted by category to match your interests. Browse through different categories to find the perfect job.</p>
+                        <a class="text-decoration-none" href="{% url 'job_categories_list' %}">
+                            All Job Categories</a>
                             <i class="bi bi-arrow-right"></i>
                         </a>
                     </div>
@@ -36,7 +36,7 @@
                         <div class="feature bg-primary bg-gradient text-white rounded-3 mb-3"><i class="bi bi-building"></i></div>
                         <h2 class="h4 fw-bolder">Job By Industry</h2>
                         <p>Browse job opportunities across various industries. Select an industry to see the latest job openings that match your career interests.</p>
-                        <a class="text-decoration-none" href="#!">
+                        <a class="text-decoration-none" href="{% url 'job_industries_list' %}">
                             All industries
                             <i class="bi bi-arrow-right"></i>
                         </a>
