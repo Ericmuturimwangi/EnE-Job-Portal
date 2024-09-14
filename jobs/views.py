@@ -3,6 +3,9 @@ from django.contrib.auth.decorators import login_required
 from .models import Job, Application
 from .forms import JobForm, ApplicationForm
 
+def index(request):
+    return render(request, 'jobs/index.html')
+
 def job_list(request):
     jobs = Job.objects.all()
     return render (request, 'jobs/job_list.html', {'jobs':jobs})
