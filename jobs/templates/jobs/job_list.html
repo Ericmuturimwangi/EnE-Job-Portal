@@ -1,9 +1,35 @@
 {% extends 'jobs/base.html' %}
-{%  block content%}
-{% for job in jobs %}
-<h2>  {{ job.title }}</h2>
-<p>{{ job.company.company_name }} - {{ job.location }}</p>
-<a href="{% url 'job_detail' job.pk %}">View Job</a>
-{% endfor %}
 
+{% block content %}
+<div class="container my-4">
+    <h1 style="
+    font-size: 3rem; /* Adjust the font size */
+    font-weight: bold; /* Make the font bold */
+    color: #007bff; /* Set a color for the text */
+    text-align: center; /* Center the heading */
+    margin-top: 2rem; /* Add top margin */
+    margin-bottom: 1rem; /* Add bottom margin */
+    text-transform: uppercase; /* Make the text uppercase */
+    letter-spacing: 1px; /* Add spacing between letters */
+    font-family: 'Arial', sans-serif; /* Set the font family */
+">Job listings</h1>
+    <div class="row">
+        
+        {% for job in jobs %}
+        <div class="col-md-4 mb-4">
+            <div class="card">
+               
+                <div class="card-body">
+                    <h5 class="card-title">{{ job.title }}</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">{{ job.company.company_name }} - {{ job.location }}</h6>
+                    <a href="{% url 'job_detail' job.pk %}" class="btn btn-primary">View Job</a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <p>No jobs available.</p>
+        {% endfor %}
+    </div>
+    <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+</div>
 {% endblock content %}

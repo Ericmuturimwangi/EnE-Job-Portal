@@ -23,7 +23,7 @@ def job_detail(request, pk):
                 application.job = job
                 application.applicant = request.user
                 application.save()
-                return redirect('home')  # Redirect to job list or a thank you page
+                return redirect('job_list')  # Redirect to job list or a thank you page
         else:
             return redirect('login')  # Redirect to login page if not authenticated
     else:
