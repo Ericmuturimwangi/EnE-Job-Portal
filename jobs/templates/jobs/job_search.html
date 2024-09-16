@@ -1,0 +1,25 @@
+{% extends 'jobs/base.html' %}
+
+{% block content %}
+<div class="container my-4">
+    <h1>Search Results{% if query %} for "{{ query }}"{% endif %}</h1>
+    <div class="row">
+        {% if jobs %}
+            {% for job in jobs %}
+                <div class="col-lg-4 mb-5 mb-lg-0">
+                    <div class="feature bg-primary bg-gradient text-white rounded-3 mb-3"><i class="bi bi-briefcase"></i></div>
+                    <h2 class="h4 fw-bolder">{{ job.title }}</h2>
+                    <p>{{ job.description|slice:":150" }}...</p>
+                    <a class="text-decoration-none" href="{% url 'job_detail' job.id %}">
+                        View Details
+                        <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>No jobs found matching your query.</p>
+        {% endif %}
+    </div>
+</div>
+<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+{% endblock %}

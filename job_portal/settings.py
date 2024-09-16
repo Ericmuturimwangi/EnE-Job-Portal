@@ -9,9 +9,12 @@ https://docs.djangoproject.com/en/5.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
+import os
 
 from pathlib import Path
+from dotenv import load_dotenv
 
+load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -38,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'jobs',
+    'django_daraja',
 ]
 
 MIDDLEWARE = [
@@ -76,8 +80,14 @@ WSGI_APPLICATION = 'job_portal.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+         "ENGINE": "django.db.backends.sqlite3",
+         "NAME": BASE_DIR / "db.sqlite3",
+        # 'ENGINE': "django.db.backends.postgresql",
+        # 'NAME': "railway",  # Ensure this is set in your .env file
+        # 'USER': "postgres",  # Ensure this is set in your .env file
+        # 'PASSWORD': os.environ["DB_PASSWORD"],  # Ensure this is set in your .env file
+        # 'HOST': "roundhouse.proxy.rlwy.net",  # Ensure this is set in your .env file
+        # 'PORT': "5432",  # Ensure this is set in your .env file
     }
 }
 
@@ -126,3 +136,5 @@ STATICFILES_DIRS = [
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+

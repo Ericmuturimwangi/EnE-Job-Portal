@@ -3,6 +3,16 @@ from django.contrib.auth.decorators import login_required
 from .models import Job, Application
 from .forms import JobForm, ApplicationForm
 from .models import Category, Industry
+from django.http import HttpResponse
+from django_daraja.mpesa.core import MpesaClient
+def job_search(request):
+    query = request.GET.get('q', '')
+    if query:
+        jobs = Job.objects.filter(title__icontains=query)
+    else:
+        jobs = Job.objects.none()  # No jobs if no query is provided
+    return render(request, 'jobs/job_search.html', {'jobs': jobs, 'query': query})
+
 def job_categories_list(request):
     categories = Category.objects.all()
     return render(request, 'jobs/categories_list.html', {'categories': categories})
@@ -22,8 +32,7 @@ def jobs_by_industry(request, industry_id):
     return render (request, 'jobs/industry.html', {'industry': industry, 'jobs':jobs})
 
 
-
-def index(request):
+def home(request):
     return render(request, 'jobs/index.html')
 
 def job_list(request):
@@ -63,3 +72,17 @@ def post_job(request):
         form = JobForm()
     return render(request, 'jobs/post_job.html', {'form': form})
         
+
+# mpesa
+
+# def index(request):
+#     cl = MpesaClient()
+#     # Use a Safaricom phone number that you have access to, for you to be able to view the prompt.
+#     phone_number = '0720630112'
+#     amount = 100
+#     account_reference = 'reference'
+#     transaction_desc = 'Description'
+#     callback_url = 'https://api.darajambili.com/express-payment'
+#     response = cl.stk_push(phone_number, amount, account_reference, transaction_desc, callback_url)
+#     return HttpResponse(response)
+#     return render(request, 'jobs/job_list.html', {'job': job, 'form': form})
