@@ -3,26 +3,25 @@
 {% block content %}
 <div class="container my-4">
     <h1 style="
-    font-size: 3rem; /* Adjust the font size */
-    font-weight: bold; /* Make the font bold */
-    color: #007bff; /* Set a color for the text */
-    text-align: center; /* Center the heading */
-    margin-top: 2rem; /* Add top margin */
-    margin-bottom: 1rem; /* Add bottom margin */
-    text-transform: uppercase; /* Make the text uppercase */
-    letter-spacing: 1px; /* Add spacing between letters */
-    font-family: 'Arial', sans-serif; /* Set the font family */
-">Job listings</h1>
+    font-size: 3rem; 
+    font-weight: bold; 
+    color: #007bff; 
+    text-align: center; 
+    margin-top: 2rem; 
+    margin-bottom: 1rem; 
+    text-transform: uppercase; 
+    letter-spacing: 1px; 
+    font-family: 'Arial', sans-serif; 
+    ">Job listings</h1>
+    
     <div class="row">
-        
         {% for job in jobs %}
         <div class="col-md-4 mb-4">
             <div class="card">
-               
                 <div class="card-body">
                     <h5 class="card-title">{{ job.title }}</h5>
                     <h6 class="card-subtitle mb-2 text-muted">{{ job.company.company_name }} - {{ job.location }}</h6>
-                    <a href="{% url 'job_detail' job.pk %}" class="btn btn-primary">View Job</a>
+                    <a href="{% url 'job_detail' job.pk %}" class="btn btn-primary view-job-btn" data-job-id="{{ job.pk }}">View Job</a>
                 </div>
             </div>
         </div>
@@ -30,6 +29,55 @@
         <p>No jobs available.</p>
         {% endfor %}
     </div>
-    <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const viewJobBtns = document.querySelectorAll('.view-job-btn'); // Select all buttons with the class
+        
+            if (viewJobBtns.length > 0) {
+                viewJobBtns.forEach(viewJobBtn => {
+                    viewJobBtn.addEventListener('click', function(event) {
+                        event.preventDefault();
+        
+                        const jobId = this.getAttribute('data-job-id');
+                        console.log('Job ID:', jobId); // Log the job ID
+        
+                        // Fetch the CSRF token from the DOM
+                        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+                        if (csrfToken) {
+                            console.log('CSRF Token found:', csrfToken.value); // Log if the CSRF token is found
+                            fetch('/stk-push/', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRFToken': csrfToken.value  // Use the value of the csrf token
+                                },
+                                body: JSON.stringify({
+                                    phoneNumber: '0720630112', // Collect phone number dynamically
+                                    amount: 100,
+                                    jobId: jobId
+                                })
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    alert('STK push sent. Please check your phone.');
+                                    window.location.href = `/job/${jobId}/`;
+                                } else {
+                                    alert('Failed to initiate STK push.');
+                                }
+                            })
+                            .catch(error => console.error('Error:', error));  // Handle any errors from the fetch
+                        } else {
+                            console.error('CSRF token element not found.'); // Log if CSRF token is missing
+                        }
+                    });
+                });
+            } else {
+                console.error('View Job Buttons not found.'); // Log if no buttons are found
+            }
+        });
+        </script>
 </div>
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
 {% endblock content %}

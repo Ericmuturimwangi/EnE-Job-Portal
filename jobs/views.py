@@ -1,10 +1,16 @@
 from django.shortcuts import render, redirect, get_object_or_404
+import logging
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .models import Job, Application
-from .forms import JobForm, ApplicationForm
+from .forms import JobForm
 from .models import Category, Industry
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse 
+from django.views.decorators.csrf import csrf_exempt
+import json
 from django_daraja.mpesa.core import MpesaClient
+
+logger = logging.getLogger(__name__)
 def job_search(request):
     query = request.GET.get('q', '')
     if query:
@@ -42,21 +48,22 @@ def job_list(request):
 @login_required
 def job_detail(request, pk):
     job = get_object_or_404(Job, pk=pk)
-    if request.method == 'POST':
-        if request.user.is_authenticated:
-            form = ApplicationForm(request.POST, request.FILES)
-            if form.is_valid():
-                application = form.save(commit=False)
-                application.job = job
-                application.applicant = request.user
-                application.save()
-                return redirect('job_list')  # Redirect to job list or a thank you page
-        else:
-            return redirect('login')  # Redirect to login page if not authenticated
-    else:
-        form = ApplicationForm()
-    
-    return render(request, 'jobs/job_detail.html', {'job': job, 'form': form})
+    # if request.method == 'POST':
+    #     if request.user.is_authenticated:
+    #         form = ApplicationForm(request.POST, request.FILES)
+    #         if form.is_valid():
+    #             application = form.save(commit=False)
+    #             application.job = job
+    #             application.applicant = request.user
+    #             application.save()
+    #             return redirect('job_list')  # Redirect to job list or a thank you page
+    #     else:
+    #         return redirect('login')  # Redirect to login page if not authenticated
+    # else:
+    #     form = ApplicationForm()
+    # return render(request, 'jobs/job_detail.html', {'job': job, 'form': form})
+
+    return render(request, 'jobs/job_detail.html', {'job': job})
 
     
 @login_required
@@ -75,14 +82,47 @@ def post_job(request):
 
 # mpesa
 
-# def index(request):
-#     cl = MpesaClient()
-#     # Use a Safaricom phone number that you have access to, for you to be able to view the prompt.
-#     phone_number = '0720630112'
-#     amount = 100
-#     account_reference = 'reference'
-#     transaction_desc = 'Description'
-#     callback_url = 'https://api.darajambili.com/express-payment'
-#     response = cl.stk_push(phone_number, amount, account_reference, transaction_desc, callback_url)
-#     return HttpResponse(response)
-#     return render(request, 'jobs/job_list.html', {'job': job, 'form': form})
+@csrf_exempt
+def stk_push_request(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            logger.info('Received STK Push request: %s', data)
+
+            phone_number = data.get('phoneNumber')
+            amount = data.get('amount', 1)  # Default to 1 if not provided
+            account_reference = data.get('accountReference', 'reference')  # Default value
+            transaction_desc = data.get('transactionDesc', 'Description')  # Default value
+            callback_url = 'https://yourdomain.com/stk-push-callback/'  # Your callback URL
+
+            cl = MpesaClient()
+            response = cl.stk_push(phone_number, amount, account_reference, transaction_desc, callback_url)
+
+            logger.info('STK Push Response: %s', response)
+
+            return JsonResponse({
+                'success': True,
+                'message': 'STK push initiated',
+                'response': response
+            })
+
+        except Exception as e:
+            logger.error('Error initiating STK Push: %s', str(e))
+            return JsonResponse({
+                'success': False,
+                'message': str(e)
+            }, status=500)
+
+    return JsonResponse({
+        'success': False,
+        'message': 'Invalid request method'
+    }, status=400)
+
+# Callback View
+def stk_push_callback(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        logger.info('STK Push callback received: %s', data)
+        # Process the callback data from Safaricom here
+        return HttpResponse("STK Push callback received")
+
