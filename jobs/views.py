@@ -9,6 +9,24 @@ from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
 from django_daraja.mpesa.core import MpesaClient
+from django.contrib.auth import login
+from .forms import UserRegistrationForm
+from django.contrib.auth.views import LoginView
+
+def register(request):
+    if request.method == 'POST':
+        form = UserRegistrationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect('home')
+    else:
+        form = UserRegistrationForm()
+
+    return render(request, 'register.html', {'form':form})
+
+class CustomLoginView(LoginView):
+    template_name = 'login.html'
 
 logger = logging.getLogger(__name__)
 def job_search(request):
@@ -103,8 +121,10 @@ def stk_push_request(request):
             return JsonResponse({
                 'success': True,
                 'message': 'STK push initiated',
-                'response': response
-            })
+                "ResponseDescription": "Success. Request accepted for processing",  #should be serializable
+
+                
+            }, status=200)
 
         except Exception as e:
             logger.error('Error initiating STK Push: %s', str(e))

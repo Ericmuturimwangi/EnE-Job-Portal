@@ -46,7 +46,7 @@
                         const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
                         if (csrfToken) {
                             console.log('CSRF Token found:', csrfToken.value); // Log if the CSRF token is found
-                            fetch('/stk-push/', {
+                            fetch('/jobs/stk-push', {
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json',
@@ -78,6 +78,7 @@
             }
         });
         </script>
+        
 </div>
-<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+
 {% endblock content %}
