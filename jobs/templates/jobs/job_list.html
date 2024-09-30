@@ -23,61 +23,68 @@
                     <h6 class="card-subtitle mb-2 text-muted">{{ job.company.company_name }} - {{ job.location }}</h6>
                     <a href="{% url 'job_detail' job.pk %}" class="btn btn-primary view-job-btn" data-job-id="{{ job.pk }}">View Job</a>
                 </div>
-            </div>
-        </div>
-        {% empty %}
-        <p>No jobs available.</p>
-        {% endfor %}
-    </div>
-
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const viewJobBtns = document.querySelectorAll('.view-job-btn'); // Select all buttons with the class
-        
-            if (viewJobBtns.length > 0) {
-                viewJobBtns.forEach(viewJobBtn => {
-                    viewJobBtn.addEventListener('click', function(event) {
-                        event.preventDefault();
-        
-                        const jobId = this.getAttribute('data-job-id');
-                        console.log('Job ID:', jobId); // Log the job ID
-        
-                        // Fetch the CSRF token from the DOM
-                        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
-                        if (csrfToken) {
-                            console.log('CSRF Token found:', csrfToken.value); // Log if the CSRF token is found
-                            fetch('/jobs/stk-push', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'X-CSRFToken': csrfToken.value  // Use the value of the csrf token
-                                },
-                                body: JSON.stringify({
-                                    phoneNumber: '0720630112', // Collect phone number dynamically
-                                    amount: 100,
-                                    jobId: jobId
-                                })
-                            })
-                            .then(response => response.json())
-                            .then(data => {
-                                if (data.success) {
-                                    alert('STK push sent. Please check your phone.');
-                                    window.location.href = `/job/${jobId}/`;
-                                } else {
-                                    alert('Failed to initiate STK push.');
-                                }
-                            })
-                            .catch(error => console.error('Error:', error));  // Handle any errors from the fetch
+                </div>
+                </div>
+                {% empty %}
+                <p>No jobs available.</p>
+                {% endfor %}
+                </div>
+                
+                <script>
+                    document.addEventListener("DOMContentLoaded", function() {
+                        const viewJobBtns = document.querySelectorAll('.view-job-btn');
+                
+                        if (viewJobBtns.length > 0) {
+                            viewJobBtns.forEach(viewJobBtn => {
+                                viewJobBtn.addEventListener('click', function(event) {
+                                    event.preventDefault();
+                
+                                    const jobId = this.getAttribute('data-job-id');
+                                    console.log('Job ID:', jobId);
+                
+                                    // Prompt for phone number
+                                    const phoneNumber = prompt("Please enter your phone number for M-Pesa payment:");
+                                    if (!phoneNumber) {
+                                        alert('Phone number is required for payment.');
+                                        return; // Exit if phone number is not provided
+                                    }
+                
+                                    // Fetch the CSRF token from the DOM
+                                    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+                                    if (csrfToken) {
+                                        console.log('CSRF Token found:', csrfToken.value);
+                                        fetch('/jobs/stk-push', {
+                                            method: 'POST',
+                                            headers: {
+                                                'Content-Type': 'application/json',
+                                                'X-CSRFToken': csrfToken.value
+                                            },
+                                            body: JSON.stringify({
+                                                phoneNumber: phoneNumber, // Use the dynamically collected phone number
+                                                amount: 100,
+                                                jobId: jobId
+                                            })
+                                        })
+                                        .then(response => response.json())
+                                        .then(data => {
+                                            if (data.success) {
+                                                alert('STK push sent. Please check your phone.');
+                                                window.location.href = `/job/${jobId}/`;
+                                            } else {
+                                                alert('Failed to initiate STK push.');
+                                            }
+                                        })
+                                        .catch(error => console.error('Error:', error));
+                                    } else {
+                                        console.error('CSRF token element not found.');
+                                    }
+                                });
+                            });
                         } else {
-                            console.error('CSRF token element not found.'); // Log if CSRF token is missing
+                            console.error('View Job Buttons not found.');
                         }
                     });
-                });
-            } else {
-                console.error('View Job Buttons not found.'); // Log if no buttons are found
-            }
-        });
-        </script>
+                </script>
         
 </div>
 
