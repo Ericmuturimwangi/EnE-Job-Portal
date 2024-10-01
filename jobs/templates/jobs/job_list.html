@@ -53,7 +53,7 @@
                                     const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
                                     if (csrfToken) {
                                         console.log('CSRF Token found:', csrfToken.value);
-                                        fetch('/jobs/stk-push', {
+                                        fetch('/jobs/stk-push/', {
                                             method: 'POST',
                                             headers: {
                                                 'Content-Type': 'application/json',
@@ -61,7 +61,7 @@
                                             },
                                             body: JSON.stringify({
                                                 phoneNumber: phoneNumber, // Use the dynamically collected phone number
-                                                amount: 100,
+                                                amount: 1,
                                                 jobId: jobId
                                             })
                                         })
@@ -69,7 +69,7 @@
                                         .then(data => {
                                             if (data.success) {
                                                 alert('STK push sent. Please check your phone.');
-                                                window.location.href = `/job/${jobId}/`;
+                                                window.location.href = `/jobs/job/${jobId}/`;
                                             } else {
                                                 alert('Failed to initiate STK push.');
                                             }

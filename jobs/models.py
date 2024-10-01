@@ -43,3 +43,15 @@ class Application (models.Model):
         return f"{self.applicant.username} applied for {self.job.title}"
 
     
+class Payment(models.Model):
+    phone_number = models.CharField(max_length=15)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    job_id = models.IntegerField()
+    account_reference = models.CharField(max_length=255, default='default_reference')  
+    transaction_desc = models.CharField(max_length=255, default='default_description')
+    timestamp = models.DateTimeField(auto_now_add=True)
+    merchant_request_id = models.CharField(max_length=255, default='', null=True)
+    checkout_request_id = models.CharField(max_length=255, default='', null=True)
+
+    def __str__(self):
+        return f"Payment of {self.amount} by {self.phone_number}"
