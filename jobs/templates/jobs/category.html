@@ -6,17 +6,69 @@
     <div class="row">
         {% for job in jobs %}
             <div class="col-lg-4 mb-5 mb-lg-0">
-                <div class="feature bg-primary bg-gradient text-white rounded-3 mb-3"><i class="bi bi-briefcase"></i></div>
+                <div class="feature bg-primary bg-gradient text-white rounded-3 mb-3">
+                    <i class="bi bi-briefcase"></i>
+                </div>
                 <h2 class="h4 fw-bolder">{{ job.title }}</h2>
                 <p>{{ job.description|slice:":150" }}...</p>
-                <a class="text-decoration-none" href="{% url 'job_detail' job.id %}">
-                    View Details
-                    <i class="bi bi-arrow-right"></i>
+                <a class="text-decoration-none" href="{% url 'job_detail' job.id %}" class="view-details-link">
+                    
                 </a>
+
+                <!-- STK Push Button -->
+                <button class="btn btn-success mt-3 stk-push-btn" data-job-id="{{ job.id }}">Pay KSh 1</button>
             </div>
         {% empty %}
             <p>No jobs available in this category.</p>
         {% endfor %}
     </div>
-</div><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const stkPushBtns = document.querySelectorAll('.stk-push-btn');
+
+        stkPushBtns.forEach(btn => {
+            btn.addEventListener('click', function(event) {
+                event.stopPropagation();  // Prevents the click event from bubbling up to the parent link
+
+                const jobId = this.getAttribute('data-job-id');
+                const phoneNumber = prompt("Please enter your phone number for M-Pesa payment:");
+
+                if (!phoneNumber) {
+                    alert('Phone number is required for payment.');
+                    return;
+                }
+
+                const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+                fetch('/jobs/stk-push/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken,
+                    },
+                    body: JSON.stringify({
+                        phoneNumber: phoneNumber,
+                        amount: 1,
+                        jobId: jobId,
+                    }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('STK push sent. Please check your phone.');
+
+                        // Redirect to the job detail page after payment
+                        window.location.href = `/jobs/job/${jobId}/`;
+                    } else {
+                        alert('Failed to initiate STK push.');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            });
+        });
+    });
+</script>
+
 {% endblock %}

@@ -9,6 +9,7 @@ import json
 from django_daraja.mpesa.core import MpesaClient
 from django.contrib.auth import login
 from django.contrib.auth.views import LoginView
+from .models import Category, Industry 
 
 # Initialize logger
 logger = logging.getLogger(__name__)
