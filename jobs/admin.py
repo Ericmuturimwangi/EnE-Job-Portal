@@ -16,7 +16,7 @@ admin.site.register(Job, JobAdmin)
 
 @admin.register(Payment)
 class PaymentAdmin(admin.ModelAdmin):
-    list_display = ('phone_number', 'amount', 'job_id', 'timestamp')
+    list_display = ('phone_number', 'amount', 'job_id', 'timestamp', 'transaction_desc')
     search_fields = ('phone_number', 'amount', 'job_id')
     list_filter = ('timestamp',)
 

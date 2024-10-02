@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 import logging
 from django.contrib.auth.decorators import login_required
-from .models import Job, Application, Payment  # Ensure Payment is imported
+from .models import Job, Application, Payment  
 from .forms import JobForm, UserRegistrationForm
 from django.http import HttpResponse, JsonResponse 
 from django.views.decorators.csrf import csrf_exempt
@@ -156,9 +156,51 @@ def stk_push_request(request):
     }, status=400)
 
 # Callback View
+@csrf_exempt  # Disable CSRF protection for testing, but enable it in production
 def stk_push_callback(request):
     if request.method == 'POST':
-        data = json.loads(request.body)
-        logger.info('STK Push callback received: %s', data)
-        # Process the callback data from Safaricom here
-        return HttpResponse("STK Push callback received")
+        try:
+            data = json.loads(request.body)
+            logger.info('STK Push callback received: %s', data)
+            
+            # Extract the MerchantRequestID and CheckoutRequestID from the callback
+            merchant_request_id = data.get('Body', {}).get('stkCallback', {}).get('MerchantRequestID')
+            checkout_request_id = data.get('Body', {}).get('stkCallback', {}).get('CheckoutRequestID')
+            
+            # Extract the result code and result description
+            result_code = data.get('Body', {}).get('stkCallback', {}).get('ResultCode')
+            result_description = data.get('Body', {}).get('stkCallback', {}).get('ResultDesc')
+
+            # Log the details for debugging
+            logger.info('Callback result code: %s', result_code)
+            logger.info('Callback result description: %s', result_description)
+            
+            # Find the Payment object using the merchant_request_id and checkout_request_id
+            try:
+                payment = Payment.objects.get(merchant_request_id=merchant_request_id, checkout_request_id=checkout_request_id)
+                
+                # Update the status based on the result code
+                if result_code == 0:  # Success case
+                    payment.status = 'success'
+                else:
+                    payment.status = 'failed'
+                    payment.failure_reason = result_description  # Log the failure reason
+
+                payment.save()
+                logger.info('Payment status updated: %s', payment)
+                
+                return JsonResponse({'status': 'success', 'message': 'Payment status updated'}, status=200)
+
+            except Payment.DoesNotExist:
+                logger.error('Payment not found for MerchantRequestID: %s and CheckoutRequestID: %s', merchant_request_id, checkout_request_id)
+                return JsonResponse({'status': 'error', 'message': 'Payment not found'}, status=404)
+        
+        except json.JSONDecodeError as e:
+            logger.error('Invalid JSON received: %s', str(e))
+            return JsonResponse({'status': 'error', 'message': 'Invalid JSON data'}, status=400)
+        
+        except Exception as e:
+            logger.error('Error processing STK Push callback: %s', str(e))
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=400)
