@@ -12,7 +12,7 @@
                             <p class="lead text-white-50 mb-4">Quickly search and apply to responsive job openings, the world’s most popular online job Portal!</p>
                             {% if user.is_authenticated %}
                             <div class="d-grid gap-3 d-sm-flex justify-content-sm-center">
-                                <a class="btn btn-primary btn-lg px-4 me-sm-3" href="{% url 'job_list' %}">Get Started</a>
+                                <a class="btn btn-primary btn-lg px-4 me-sm-3" href="{% url 'job_list' %}">Find Jobs</a>
                             {% else %}
                                 <a class="btn btn-primary btn-lg px-4 me-sm-3" href="{% url 'login' %}">Login</a>
                             {% endif %}
